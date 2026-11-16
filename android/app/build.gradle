@@ -1,0 +1,51 @@
+plugins {
+    id 'com.android.application'
+}
+
+// Use the highest SDK platform already installed, so Gradle never triggers
+// an extra SDK download from dl.google.com.
+def detectCompileSdk = {
+    def sdk = System.getenv('ANDROID_HOME') ?: System.getenv('ANDROID_SDK_ROOT')
+    def lp = new File(rootProject.projectDir, 'local.properties')
+    if (!sdk && lp.exists()) {
+        def p = new Properties()
+        lp.withInputStream { p.load(it) }
+        sdk = p.getProperty('sdk.dir')
+    }
+    if (!sdk && System.getenv('LOCALAPPDATA')) {
+        sdk = new File(System.getenv('LOCALAPPDATA'), 'Android/Sdk').absolutePath
+    }
+    if (!sdk) return 35
+    def dir = new File(sdk, 'platforms')
+    if (!dir.isDirectory()) return 35
+    def apis = dir.listFiles()
+            .findAll { it.isDirectory() && it.name ==~ /android-\d+/ && new File(it, 'android.jar').exists() }
+            .collect { (it.name - 'android-').toInteger() }
+    return apis ? apis.max() : 35
+}
+
+android {
+    namespace 'com.openreader.app'
+    compileSdk detectCompileSdk()
+
+    defaultConfig {
+        applicationId 'com.openreader.app'
+        minSdk 24
+        targetSdk 34
+        versionCode 15
+        versionName '1.16.0'
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    buildTypes {
+        release { minifyEnabled false }
+    }
+}
+
+// Phase A has no third-party dependencies at all.
+dependencies {
+}

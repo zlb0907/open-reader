@@ -1,0 +1,318 @@
+/* Phone shell v3 · 多机型适配
+   Loaded after style.css. Every modern value has a plain fallback written
+   FIRST, so an old WebView that cannot parse env()/min()/dvh drops the second
+   declaration and keeps the first instead of collapsing the layout.
+   No font-dependent glyphs in the always-on chrome: icons are inline SVG. */
+
+:root {
+  --or-top: 52px;
+  --or-bottom: 58px;
+  --or-drawer: 84vw;          /* min() is Chrome 79+; use max-width instead */
+  --or-safe-bottom: 8px;      /* 手势导航条兜底（WebView 常把 inset-bottom 报成 0） */
+}
+
+#or-topbar, #or-tabbar, #or-mask, #or-drawer-close, #or-diag { display: none; }
+
+@media (max-width: 860px) {
+  html, body { height: 100%; overscroll-behavior: none; }
+
+  /* ---------- shell ---------- */
+  .app { display: block !important; height: 100vh; height: 100dvh; }
+  .main {
+    width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    padding-top: var(--or-top);
+    padding-top: calc(var(--or-top) + env(safe-area-inset-top, 0px));
+    padding-bottom: calc(var(--or-bottom) + var(--or-safe-bottom));
+    padding-bottom: calc(var(--or-bottom) + var(--or-safe-bottom) + env(safe-area-inset-bottom, 0px));
+    padding-left: 0;
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: 0;
+    padding-right: env(safe-area-inset-right, 0px);
+  }
+  .view { height: 100%; }
+  #or-topbar .or-ic { width: 21px; height: 21px; display: block; }
+  #or-tabbar .or-ic { width: 20px; height: 20px; display: block; margin-bottom: 2px; }
+
+  /* ---------- top app bar ---------- */
+  #or-topbar {
+    display: flex !important;
+    align-items: center;
+    position: fixed;
+    left: 0; right: 0; top: 0;
+    z-index: 100;
+    height: var(--or-top);
+    height: calc(var(--or-top) + env(safe-area-inset-top, 0px));
+    padding: 0 8px;
+    padding-top: 0;
+    padding-top: env(safe-area-inset-top, 0px);
+    background: var(--panel, #fff);
+    border-bottom: 1px solid var(--line, #e3e7ee);
+    box-shadow: 0 1px 8px rgba(20, 30, 50, .06);
+  }
+  #or-topbar > * { margin-right: 6px; }
+  #or-topbar > :last-child { margin-right: 0; }
+  #or-topbar button {
+    flex: none;
+    width: 40px; height: 40px;
+    padding: 0;
+    display: flex; align-items: center; justify-content: center;
+    border: 0; border-radius: 10px;
+    background: transparent;
+    color: var(--text, #20242e);
+    font-size: 21px; line-height: 1;
+  }
+  #or-topbar button:active { background: var(--hover, rgba(63,106,216,.07)); }
+  #or-title {
+    flex: 1; min-width: 0;
+    font-size: 16px; font-weight: 600;
+    color: var(--text, #20242e);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    text-align: center;
+  }
+  #or-import-btn {
+    width: auto !important;
+    padding: 0 9px !important;
+    font-size: 13px !important;
+    font-weight: 600;
+    white-space: nowrap;
+    color: var(--accent, #3f6ad8) !important;
+  }
+  #or-import-btn .or-ic { width: 16px; height: 16px; margin-right: 4px; }
+
+  /* ---------- bottom tab bar ---------- */
+  #or-tabbar {
+    display: flex !important;
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    z-index: 100;
+    height: calc(var(--or-bottom) + var(--or-safe-bottom));
+    height: calc(var(--or-bottom) + var(--or-safe-bottom) + env(safe-area-inset-bottom, 0px));
+    padding: 0 4px var(--or-safe-bottom);
+    padding-bottom: var(--or-safe-bottom);
+    padding-bottom: calc(var(--or-safe-bottom) + env(safe-area-inset-bottom, 0px));
+    background: var(--panel, #fff);
+    border-top: 1px solid var(--line, #e3e7ee);
+    box-shadow: 0 -1px 8px rgba(20, 30, 50, .05);
+  }
+  #or-tabbar button {
+    flex: 1; min-width: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    border: 0; border-radius: 0;
+    background: transparent;
+    color: var(--muted, #7b8595);
+    font-size: 11px; line-height: 1.2;
+    padding: 4px 0;
+  }
+  #or-tabbar button.active { color: var(--accent, #3f6ad8); font-weight: 600; }
+  #or-tabbar button:active { background: var(--hover, rgba(63,106,216,.07)); }
+
+  /* ---------- drawer (the full desktop sidebar, slid in) ---------- */
+  .sidebar {
+    position: fixed !important;
+    left: 0; top: 0; bottom: 0;
+    width: var(--or-drawer) !important;
+    max-width: 300px !important;
+    z-index: 120;
+    transform: translateX(-102%);
+    transition: transform .22s ease;
+    box-shadow: 6px 0 24px rgba(20, 30, 50, .18);
+    overflow-y: auto;
+    padding-top: 18px !important;
+    padding-top: calc(18px + env(safe-area-inset-top, 0px)) !important;
+    padding-bottom: calc(12px + var(--or-safe-bottom)) !important;
+    padding-bottom: calc(12px + var(--or-safe-bottom) + env(safe-area-inset-bottom, 0px)) !important;
+  }
+  body.menu-open .sidebar, .app.menu-open .sidebar { transform: none; }
+  .brand { padding-right: 34px; }
+
+  #or-mask {
+    position: fixed;
+    top: 0; right: 0; bottom: 0; left: 0;
+    z-index: 115;
+    background: rgba(12, 20, 36, .42);
+  }
+  /* The mask lives under <body>, NOT inside .app -- this selector was the bug. */
+  body.menu-open #or-mask { display: block !important; }
+
+  #or-drawer-close {
+    position: fixed;
+    top: 8px;
+    top: calc(8px + env(safe-area-inset-top, 0px));
+    left: calc(var(--or-drawer) - 44px);
+    z-index: 130;
+    width: 36px; height: 36px;
+    border: 0; border-radius: 10px;
+    background: transparent;
+    color: var(--muted, #7b8595);
+    font-size: 24px; line-height: 1;
+    display: none;
+  }
+  body.menu-open #or-drawer-close { display: block !important; }
+
+  /* ---------- boot self-check banner ---------- */
+  #or-diag {
+    position: fixed;
+    left: 8px; right: 8px;
+    top: calc(var(--or-top) + 6px);
+    top: calc(var(--or-top) + env(safe-area-inset-top, 0px) + 6px);
+    z-index: 200;
+    max-height: 60vh; overflow: auto;
+    padding: 10px 12px;
+    border: 1px solid #e0a4a4; border-radius: 10px;
+    background: #fff4f4; color: #7a2020;
+    font: 11px/1.6 monospace; word-break: break-all;
+    box-shadow: 0 6px 20px rgba(20, 30, 50, .16);
+  }
+  #or-diag.hidden { display: none !important; }
+  #or-diag b { display: block; font-size: 13px; margin-bottom: 4px; }
+  #or-diag::after { content: '（点此关闭）'; display: block; margin-top: 6px; color: #a05a5a; }
+
+  /* ---------- content tweaks ---------- */
+  .main-head { padding: 14px 12px 12px !important; flex-wrap: wrap; gap: 8px; }
+  .main-head .head-actions {
+    flex-wrap: nowrap;
+    width: 100%;
+    justify-content: flex-start;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 2px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .main-head .head-actions::-webkit-scrollbar { display: none; }
+  .main-head .head-actions > * { flex: none; }
+  .main-head h1 { font-size: 19px; }
+  .sort-box label { display: none; }
+  .shelf-grid {
+    padding: 14px 12px 40px !important;
+    grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+    grid-gap: 12px; gap: 12px;
+  }
+  /* v1.10.0 书架密度：手机列宽比桌面窄，避免中档在 390dp 只剩两列。
+     全部是纯 px 值，老 WebView 解析不了 var()/min() 也能逐条生效。 */
+  body[data-shelf-density="large"] .shelf-grid { grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); }
+  body[data-shelf-density="medium"] .shelf-grid { grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 10px; }
+  body[data-shelf-density="medium"] .cover { height: 124px; }
+  body[data-shelf-density="small"] .shelf-grid { grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 8px; }
+  body[data-shelf-density="small"] .cover { height: 98px; }
+  body[data-shelf-density="small"] .cover .ct { font-size: 11px; }
+  body[data-shelf-density="small"] .card-sub { display: none; }
+  /* v1.10.0 紧凑列表：手机上再压一点行高，一屏能多看两本 */
+  body[data-shelf-view="list"] .shelf-grid { display: block; padding: 8px 8px 40px !important; }
+  body[data-shelf-view="list"] .book-card { min-height: 60px; padding: 6px 8px; gap: 10px; }
+  body[data-shelf-view="list"] .list-cover { flex-basis: 34px; width: 34px; height: 48px; }
+  body[data-shelf-view="list"] .list-title { font-size: 14px; }
+  .search-result { padding: 12px; }
+
+  .reader-shell { position: relative; }
+  .toc {
+    position: absolute !important;
+    left: 0; top: 0; bottom: 0;
+    width: 76vw !important;
+    max-width: 270px !important;
+    z-index: 30;
+    box-shadow: 4px 0 18px rgba(20, 30, 50, .16);
+    background: var(--panel, #fff);
+  }
+  /* 工具条改成单行横滑：模式切换按钮就在「书架」旁边，永远第一屏可见 */
+  .reader-bar { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; gap: 4px; padding: 8px; }
+  .reader-bar::-webkit-scrollbar { display: none; }
+  .reader-bar > * { flex: none; }
+  .reader-bar .ghost { padding: 5px 8px; font-size: 12px; white-space: nowrap; }
+  .reader-bar .spacer { display: none; }
+  .reader-bar .reader-title { max-width: 120px; }
+  .content { padding: 20px 16px 60px !important; }
+  .reader-foot { padding: 8px 12px; gap: 8px; }
+  .reader-foot button { min-width: 84px; }
+  .reader-foot #page-info { font-size: 10px; }
+
+  /* 连续滚动：单指上下滑动自动续章，章节块之间留清晰分隔 */
+  .content.stream { padding: 10px 16px 36px !important; -webkit-overflow-scrolling: touch; }
+  .content.stream .stream-title { font-size: 15px; padding: 18px 0 8px; margin-bottom: 14px; }
+  .content.stream .stream-end { padding-bottom: 36px; }
+
+  /* 仿真翻书：正文不再滚动，整屏就是一张纸 */
+  .content.book-mode { touch-action: manipulation; -webkit-touch-callout: none; }
+  .book-page { padding: 16px 18px 12px;
+    padding-bottom: 12px;
+    padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px)); }
+  .book-head { font-size: 10px; padding-bottom: 6px; margin-bottom: 9px; }
+  .book-foot { font-size: 10px; padding-top: 6px; margin-top: 8px; }
+  body.immersive .book-page { padding-top: 18px;
+    padding-bottom: 18px;
+    padding-bottom: calc(18px + env(safe-area-inset-bottom, 0px)); }
+  .reader-foot #page-info { font-size: 10px; }
+
+  .request-body { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+  .request-body iframe, .request-frame {
+    width: 100%; flex: 1; min-height: 0; border: 0; display: block;
+  }
+  .request-tip { margin: 6px 10px; font-size: 12px; }
+
+  #lib-path { font-size: 0 !important; white-space: normal !important; line-height: 1.45 !important; }
+  #lib-path::after {
+    content: '书库在本机 · 卸载会清空，记得「导出整库」备份';
+    font-size: 10px;
+    color: var(--muted, #7b8595);
+  }
+
+  .modal { max-width: calc(100vw - 32px); }
+  .toast { left: 12px; right: 12px; transform: none; text-align: center; }
+  .immersive-exit { top: 10px; top: calc(10px + env(safe-area-inset-top, 0px)); right: 10px; z-index: 140; }
+
+  /* ---------- reading / immersive ---------- */
+  body.in-reader #or-tabbar { display: none !important; }
+  body.in-reader .main { padding-bottom: 0; }
+  body.immersive #or-topbar,
+  body.immersive #or-tabbar,
+  body.immersive #or-mask,
+  body.immersive #or-drawer-close { display: none !important; }
+  body.immersive .main { padding-top: 0; padding-bottom: 0; }
+}
+
+/* ---------- 小屏 / 老机型（≤360dp）---------- */
+@media (max-width: 360px) {
+  #or-title { font-size: 14px; }
+  #or-import-btn span { display: none; }
+  #or-import-btn { padding: 0 8px !important; }
+  #or-import-btn .or-ic { margin-right: 0; }
+  #or-tabbar button { font-size: 10px; }
+  #or-tabbar .or-ic { width: 18px; height: 18px; }
+  .main-head { padding: 10px 10px 8px !important; }
+  .shelf-grid { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); }
+}
+
+/* ---------- 横屏矮屏：给正文多留空间 ---------- */
+@media (max-width: 860px) and (max-height: 480px) and (orientation: landscape) {
+  :root { --or-top: 44px; --or-bottom: 46px; --or-safe-bottom: 4px; }
+  #or-topbar button { height: 36px; width: 36px; }
+  #or-topbar .or-ic { width: 19px; height: 19px; }
+  #or-tabbar .or-ic { width: 17px; height: 17px; margin-bottom: 0; }
+  #or-tabbar button { font-size: 10px; padding: 2px 0; }
+  .main-head { padding: 8px 12px 6px !important; }
+  .main-head h1 { font-size: 17px; }
+}
+
+/* ---------- 平板 / 折叠屏展开：回到桌面双栏 ---------- */
+@media (min-width: 861px) {
+  #or-topbar, #or-tabbar, #or-mask, #or-drawer-close, #or-diag { display: none !important; }
+  .main { padding-top: 0; padding-bottom: 0; }
+}
+
+/* ---------- 分类整理（安卓）：长按书卡出菜单，无 hover / 右键 / HTML5 拖放 ---------- */
+.book-card { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none;
+  -webkit-tap-highlight-color: transparent; }
+.bulk-bar { left: 8px; right: 8px; max-width: none; transform: none;
+  z-index: 105; bottom: 62px;
+  bottom: calc(var(--or-bottom) + var(--or-safe-bottom) + 8px); }
+.bulk-bar { gap: 6px; padding: 8px 10px; }
+.bulk-bar .ghost, .bulk-bar .solid { padding: 6px 8px; font-size: 12px; }
+.bulk-bar .danger { color: #cf4b4b; border-color: rgba(207,75,75,.45); }
+.modal label.cat-row { padding: 11px 8px; }
+@media (min-width: 861px) {
+  .bulk-bar { left: 50%; right: auto; max-width: calc(100vw - 24px);
+    transform: translateX(-50%); bottom: 22px; }
+}

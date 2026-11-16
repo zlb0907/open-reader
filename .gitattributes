@@ -1,0 +1,4 @@
+# 所有文件按字节入库，禁用 core.autocrlf 行尾转换。
+# test/fixtures 里的 PDF / MHTML / RTF / GB18030 样本是按字节构造的，
+# 任何 CRLF 替换都会改变偏移或编码，导致格式测试失效。
+* -text

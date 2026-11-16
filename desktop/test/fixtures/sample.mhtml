@@ -1,0 +1,21 @@
+MIME-Version: 1.0
+Subject: MHTML Fixture
+Content-Type: multipart/related; boundary="----=_OpenReader_Part_000"
+
+------=_OpenReader_Part_000
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Location: http://example.test/
+
+<html><head><title>=E7=BD=91=E9=A1=B5=E5=AD=98=E6=A1=A3</title></head><body=
+><h1>=E7=AC=AC=E4=B8=80=E7=AB=A0 =E9=9D=92=E7=93=A6=E7=BA=B8=E9=B8=A2</h1><=
+p>=E5=B1=B1=E8=A1=8C=E7=AC=94=E8=AE=B0=E9=87=8C=E8=AE=B0=E7=9D=80=E4=B8=80=
+=E5=A4=84=E6=97=A7=E4=B9=A6=E6=91=8A=E3=80=82</p><h1>=E7=AC=AC=E4=BA=8C=E7=
+=AB=A0 =E9=9B=A8=E5=A4=9C</h1><p>=E6=91=8A=E4=B8=BB=E8=AF=B4=E4=B9=A6=E4=B8=
+=8D=E5=BF=85=E9=83=BD=E8=AF=BB=E5=AE=8C=E3=80=82</p></body></html>
+------=_OpenReader_Part_000
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+
+5aSH55So57qv5paH5pys
+------=_OpenReader_Part_000--

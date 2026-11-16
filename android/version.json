@@ -1,0 +1,10 @@
+{
+  "code": 15,
+  "name": "1.16.0",
+  "notes": "更换应用图标，电脑版与安卓版统一为拱窗书架图标。",
+  "update_url": "https://soshu.pythonanywhere.com/or/update.json",
+  "download_url": "https://soshu.pythonanywhere.com/or/OpenReader.apk",
+  "fallback_url": "",
+  "min_android": 24,
+  "force": true
+}

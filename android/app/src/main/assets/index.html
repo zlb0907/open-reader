@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>开放书库 · 阅读器</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<meta name="or-version" content="1.15.0">
+<link rel="stylesheet" href="/style.css">
+<link rel="stylesheet" href="/mobile.css">
+</head>
+<body data-theme="light">
+<header id="or-topbar">
+  <button id="or-menu-btn" type="button" aria-label="打开菜单" title="开放书库 v1.15.0"><svg class="or-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+  <div id="or-title">开放书库</div>
+  <button id="or-search-btn" type="button" aria-label="搜索"><svg class="or-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5 5"/></svg></button>
+  <button id="or-import-btn" type="button" aria-label="导入书籍"><svg class="or-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>导入</span></button>
+</header>
+<nav id="or-tabbar" aria-label="主导航">
+  <button class="or-tab active" data-or="shelf" type="button"><svg class="or-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M4 9h16M9 3v18"/></svg><span>书架</span></button>
+  <button class="or-tab" data-or="bookmarks" type="button"><svg class="or-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12v18l-6-4-6 4V3z"/></svg><span>书签</span></button>
+  <button class="or-tab" data-or="shuku" type="button"><svg class="or-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 18h10a3.5 3.5 0 0 0 .3-7 5.5 5.5 0 0 0-10.6 1.6A3.2 3.2 0 0 0 7 18z"/></svg><span>云书库</span></button>
+  <button class="or-tab" data-or="request" type="button"><svg class="or-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l4-1 11-11-3-3L5 16l-1 4z"/><path d="M14 6l3 3"/></svg><span>求书</span></button>
+  <button class="or-tab" data-or="settings" type="button"><svg class="or-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="2"/><circle cx="15" cy="17" r="2"/></svg><span>设置</span></button>
+</nav>
+<div id="or-mask"></div>
+<button id="or-drawer-close" type="button" aria-label="关闭菜单">×</button>
+<div id="or-diag" class="hidden"></div>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-icon"><span></span><span></span><span></span></div>
+      <div class="brand-text"><b>开放书库</b><small>OPEN READER · ANDROID v1.15.0</small></div>
+    </div>
+
+    <div class="search-box">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5L21 21"/></svg>
+      <input id="search" type="search" placeholder="搜索书名或全文…" autocomplete="off" spellcheck="false">
+    </div>
+    <button id="btn-import" class="btn-import">＋ 导入书籍</button>
+    <button id="btn-import-dir" class="btn-import btn-import-sub" title="一次选择多本书批量导入">＋ 批量导入</button>
+
+    <nav class="nav" id="nav">
+      <button class="nav-item active" data-view="all"><i>▤</i>全部书籍<em id="count-all">0</em></button>
+      <button class="nav-item" data-view="recent"><i>◷</i>最近阅读<em id="count-recent">0</em></button>
+      <button class="nav-item" data-view="bookmarks"><i>☆</i>我的书签<em id="count-bookmarks">0</em></button>
+      <button class="nav-item" data-view="unfiled"><i>◇</i>未分类<em id="count-unfiled">0</em></button>
+      <button class="nav-item" data-view="shuku"><i>☁</i>云书库</button>
+      <button class="nav-item" data-view="request"><i>✎</i>求书<em id="badge-qiushu" class="unread-badge hidden" title="有求的书已找到">0</em></button>
+    </nav>
+
+    <div class="section-head"><span>我的书架</span><button id="btn-add-collection" class="mini" title="新建分类">＋</button></div>
+    <div id="collections" class="collections"></div>
+
+    <div class="sidebar-foot">
+      <div class="foot-row">
+        <button id="btn-settings" class="foot-btn">⚙ 设置</button>
+        <button id="btn-about" class="foot-btn">ⓘ 关于</button>
+      </div>
+      <div id="lib-path" class="path" title="书库目录"></div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <!-- 书架 -->
+    <section id="view-shelf" class="view">
+      <header class="main-head">
+        <div class="head-title"><h1 id="shelf-title">全部书籍</h1><p id="shelf-sub" class="sub"></p></div>
+        <div class="head-actions">
+          <button id="btn-bulk" class="ghost" title="批量整理：勾选多本书一起加入 / 移出分类">☑ 批量整理</button>
+          <button id="btn-shelf-view" class="ghost" title="切换书架排列：封面网格 / 紧凑列表">▦ 网格</button>
+          <button id="btn-shelf-density" class="ghost" title="切换封面尺寸：大 / 中 / 小">尺寸 中图</button>
+          <div class="sort-box">
+            <label for="sort-by">排序</label>
+            <select id="sort-by" class="sort-select" title="选择排序方式">
+              <option value="added">添加时间</option>
+              <option value="title">名称</option>
+              <option value="author">作者</option>
+              <option value="size">大小</option>
+              <option value="recent">最近阅读</option>
+              <option value="format">格式</option>
+              <option value="chapters">章节数</option>
+            </select>
+            <button id="btn-sort-dir" class="ghost sort-dir" title="切换升序 / 降序">↑ 升序</button>
+          </div>
+          <button id="btn-export-lib" class="ghost">导出整库</button>
+          <button id="btn-import-lib" class="ghost" title="整库包 / 普通书籍压缩包都能识别">导入整库</button>
+          <button id="btn-reindex" class="ghost" title="重建全文检索索引">重建索引</button>
+        </div>
+      </header>
+      <div id="search-result" class="search-result hidden"></div>
+      <div id="shelf-grid" class="shelf-grid"></div>
+      <div id="bulk-bar" class="bulk-bar hidden">
+        <span id="bulk-count">已选 0 本</span>
+        <button id="bulk-all" class="ghost">全选</button>
+        <button id="bulk-invert" class="ghost" title="把当前列表里已选的取消、未选的选中">反选</button>
+        <button id="bulk-cat" class="ghost">调整分类…</button>
+        <button id="bulk-clear" class="ghost">移出全部分类</button>
+        <button id="bulk-delete" class="ghost danger" title="从书库删除勾选的书">删除所选</button>
+        <button id="bulk-exit" class="solid">完成</button>
+      </div>
+    </section>
+
+    <!-- 云书库：站内已有书籍的在线检索页 -->
+    <section id="view-shuku" class="view hidden">
+      <header class="main-head">
+        <div class="head-title"><h1>云书库</h1><p class="sub">站内已有书籍 · 搜到即可打开下载</p></div>
+      </header>
+      <div id="shuku-body" class="request-body"></div>
+    </section>
+
+    <!-- 求书 -->
+    <section id="view-request" class="view hidden">
+      <header class="main-head">
+        <div class="head-title"><h1>求书</h1></div>
+      </header>
+      <div id="request-body" class="request-body"></div>
+    </section>
+
+    <!-- 用户建议：内嵌在线反馈页，入口在「设置 → 意见反馈」 -->
+    <section id="view-suggest" class="view hidden">
+      <header class="main-head">
+        <div class="head-title"><h1>意见反馈</h1><p class="sub">匿名提交 · 只在你点开时联网</p></div>
+        <div class="head-actions"><button id="btn-suggest-back" class="ghost">← 返回书架</button></div>
+      </header>
+      <div id="suggest-body" class="request-body"></div>
+    </section>
+
+    <!-- 书签 -->
+    <section id="view-bookmarks" class="view hidden">
+      <header class="main-head">
+        <div class="head-title"><h1>我的书签</h1><p class="sub">点击条目直接跳回阅读位置</p></div>
+      </header>
+      <div id="bookmark-list" class="bookmark-list"></div>
+    </section>
+
+    <!-- 阅读 -->
+    <section id="view-reader" class="view hidden">
+      <div class="reader-shell">
+        <aside class="toc" id="toc">
+          <div class="toc-head">
+            <b>目录</b><span id="toc-count" class="toc-count">0 章</span>
+            <button id="btn-toc-collapse" class="mini" title="收起目录">‹</button>
+          </div>
+          <div class="toc-tools">
+            <input id="toc-filter" type="search" placeholder="筛选章节 / 输入页码回车跳转"
+              autocomplete="off" spellcheck="false">
+          </div>
+          <div id="toc-list" class="toc-list"></div>
+        </aside>
+        <div class="reader-main">
+          <div class="reader-bar">
+            <button id="btn-back" class="ghost">← 书架</button>
+            <button id="btn-read-mode" class="ghost" title="切换阅读方式：连续滚动 / 翻页阅读">⇅ 连续</button>
+            <button id="btn-toc-expand" class="ghost hidden" title="展开目录">☰ 目录</button>
+            <strong id="reader-title" class="reader-title"></strong>
+            <span class="spacer"></span>
+            <button id="btn-font-sm" class="ghost" title="缩小字号">A−</button>
+            <button id="btn-font-lg" class="ghost" title="放大字号">A＋</button>
+            <button id="btn-theme" class="ghost" title="切换主题">◐ 主题</button>
+            <button id="btn-bookmark" class="ghost" title="添加书签">☆ 书签</button>
+            <button id="btn-immersive" class="ghost" title="全屏阅读（F11）">⛶ 全屏</button>
+            <button id="btn-export-book" class="ghost" title="导出原始文件">导出</button>
+          </div>
+          <div class="progress-track"><div id="progress-fill"></div></div>
+          <article id="content" class="content"></article>
+          <div class="reader-foot">
+            <button id="btn-prev" class="ghost">← 上一页</button>
+            <span id="page-info" class="muted"></span>
+            <button id="btn-next" class="ghost">下一页 →</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<button id="btn-exit-immersive" class="immersive-exit" title="退出全屏阅读（F11 / Esc）">⤢ 退出全屏</button>
+
+<div id="modal-mask" class="modal-mask hidden"><div id="modal" class="modal" role="dialog"></div></div>
+<div id="context-menu" class="context-menu hidden"></div>
+<div id="drop-mask" class="drop-mask hidden"><div class="drop-inner">＋<p>松开以导入书籍</p><small>支持 单个文件 · 整个文件夹 · ZIP 压缩包（含整库包）</small></div></div>
+<div id="toast" class="toast"></div>
+
+<input id="file-input" type="file" multiple hidden
+  accept=".txt,.md,.markdown,.text,.log,.rst,.tex,.srt,.csv,.json,.xml,.nfo,.epub,.docx,.doc,.pdf,.rtf,.odt,.ott,.fb2,.html,.htm,.xhtml,.mht,.mhtml,.mobi,.prc,.pdb,.azw,.zip,.azw3,.openlib">
+<input id="dir-input" type="file" multiple hidden>
+<input id="lib-input" type="file" accept=".openlib,.zip" hidden>
+<script src="/compat.js"></script>
+<script src="/shell.js"></script>
+<script src="/bundle.js"></script>
+</body>
+</html>
