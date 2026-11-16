@@ -1,0 +1,41 @@
+# ── 兜底规则：即使误放，这些文件也绝不进公开仓库 ──
+# 成品安装包 / 大体积二进制
+*.exe
+*.apk
+*.msi
+*.zip
+*.7z
+!desktop/test/fixtures/*.zip
+
+# 凭据与数据
+*.keystore
+*.jks
+*.pem
+*.key
+*.db
+*.sqlite
+*.sqlite3
+**/admin_password.txt
+**/admin-token.txt
+**/管理入口*
+**/云端上传说明*
+
+# 服务端源码（私有）
+qiushu-pa/
+or_update/
+requests.db
+
+# 构建垃圾 / 历史备份
+node_modules/
+dist/
+runtime/
+__pycache__/
+*.pyc
+*.bak-*
+*.log
+
+# 编辑器 / 系统
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
