@@ -1,0 +1,355 @@
+﻿开放书库 · 安卓完整版（本地书库 + 阅读 + 云书库 + 求书 + 应用内更新）
+====================================================================
+
+【成品】
+  OpenReader.apk      318,228 B，可直接覆盖安装（v1.15.0，签名未变）
+  包名   com.openreader.app     版本 1.15.0（versionCode 14）
+  最低   Android 7.0（API 24）  目标 Android 14（API 34）
+  签名   APK Signature Scheme v2 + v3，apksigner verify 已通过
+  权限   INTERNET + REQUEST_INSTALL_PACKAGES（后者只为应用内更新）
+  装完打开抽屉，侧栏品牌处应显示「OPEN READER · ANDROID v1.15.0」——
+  看到旧版本号说明装的是旧包，请先卸载再装。
+
+【v1.15.0 新增：书卡改长按 + 修掉升级误报】
+  ① 书卡上的「⋯」按钮已去掉，界面恢复干净。手机端**长按书卡约半秒**
+     弹出操作菜单（打开阅读 / 重命名 / 设置封面 / 调整分类… / 移出全部分类 /
+     导出原始文件 / 删除这本书），电脑上仍可点右键，拖拽到分类照旧。
+     滑动超过 10px 视为滚屏不会误触；长按与系统菜单做了去重，只弹一次。
+  ② 修掉「正常升级却提示安装包被篡改／请从官方安装」：上一版的签名
+     校验和 assets 哈希校验在覆盖升级后会误判，本版三处（安卓签名、
+     安卓 assets、桌面完整性清单）全部改为**只写日志**，不弹窗、不退出。
+     构建期注入的指纹和哈希仍保留在包内，代码还在，随时能恢复强度。
+  ③ L2 的「重签包拒启动」硬阻断暂时关闭：误伤正版的代价远大于挡住
+     破解者。这层本来就只是提高改包成本，不是加密，源码仍是明文。
+  ④ 桌面 exe 不用重装：已同步 4 个文件并重生成 integrity.json，直接打开即可。
+
+【v1.14.0 新增：多选删除 + 安装包防篡改（L2）】
+  ① 多选删除：书架顶部「☑ 批量整理」→ 勾选多本（本版多了「反选」）→
+     底部「删除所选」。确认框显示「共 N 本」和前三个书名防手滑，
+     删完报告成功 / 失败本数，并留在批量模式里继续操作。
+  ② 防篡改（逻辑在 Java 层，不在 JS）：冷启动比对自身签名证书的 SHA-256
+     与打包时写进 classes.dex 的指纹；后台校验 24 个 assets 哈希。
+     ★ 1.15.0 起两处都改为只写日志（原先的弹窗 / 退出在正常升级后
+     会误报，已撤掉），详见上面的 v1.15.0 段。
+  ③ 桌面端新增 resources\app\integrity.json 清单，启动时比对程序文件，
+     1.15.0 起不一致只写日志、不弹窗。改动 dist 内任何文件后要重跑一次：
+        cd "D:\woby\阅读\open-reader" && node build\make-integrity.mjs
+  ④ 这层是「防篡改」不是加密：assets 里的 JS 仍是明文，别人能读懂但
+     改了会被发现；要让人读不懂，需另做混淆 / asar（本版未做）。
+  ⑤ debug.keystore 千万别丢：换 key 会让老用户无法覆盖安装、书库要重导。
+     它与「下载更新包时 SHA-256 不符」是两套独立校验，别混。
+
+【v1.13.0 已有：分类整理（长按/右键菜单 + 批量多选 + 分类勾选弹层）】
+  ① 单本：书架里**长按书卡**（电脑上右键）→「调整分类…」→ 勾选要加入的分类
+     （已加入的会预勾，右侧显示该分类已有几本），点「保存」即可。
+     取消勾选 = 从该分类移出；一本书可同时属于多个分类。
+  ② 弹层底部可直接输入名字「＋ 新建并勾选」，不用先去侧栏建分类。
+  ③ 批量：书架顶部「☑ 批量整理」→ 点书卡勾选（可「全选」）→ 底部
+     「调整分类…」一次写入多本，或「移出全部分类」→「完成」退出。
+  ④ 桌面端右键菜单里的「加入分类 ▸」二级菜单原本会被全局 click 立刻
+     关掉，本版已修复并改成一级弹层；「拖到左侧分类」保持可用。
+  ⑤ 手机端靠长按出菜单进入单本操作；批量整理与分类弹层是普通点击。
+
+【v1.12.0 已有：备份自定义名字和位置，恢复自动定位】
+  ① 设置 → 数据管理 →「导出整库备份」：先弹输入框让你给备份起名字
+     （默认「开放书库备份-日期-时间.openlib」），点确定后系统保存窗口
+     打开，左边选目录、顶部还能再改一次文件名。位置随你选：下载、
+     Documents、U 盘、网盘目录都行，不再是应用私有目录里那条
+     Android/data/com.openreader.app/... 的深路径。
+  ② 选过一次之后位置会被记住：「从备份恢复」的系统文件选择器直接
+     落在上次备份所在目录，不用再一层层翻；设置里的数据卡片也显示
+     「上次备份：<文件名>」。
+  ③ 安卓分区存储不允许手输文本路径，所以「自定义路径」= 系统保存
+     窗口里点选目录（这是安卓上唯一可靠、且不需要存储权限的做法）。
+     Android 7.0/7.1 不支持记住初始位置，会退回普通选择器，功能仍可用。
+     取消保存窗口不会写任何文件，原书库不受影响。
+  ④ 桌面 exe 没有这个弹窗，仍是浏览器下载（文件名由服务端决定）——
+     浏览器不允许网页指定下载目录，这是浏览器限制，不是软件问题。
+
+【v1.11.0 新增：目录自动收起 + 书库数据卡片 + 意见反馈 + 使用统计】
+  ① 安卓目录是盖住正文的 76vw 浮层：现在**点章节、筛选框回车跳章、
+     书签跳章后自动收起**，不用再点一次「☰ 目录 / ‹」。打开书时也默认
+     收起，直接看到正文；桌面 exe 是常驻侧栏，保持展开不动。
+  ② 设置里那块「书库目录」原本显示虚拟 /library 路径，「打开目录」
+     按钮还是灰的，等于废块。安卓端改成看得懂的**书库数据卡片**：
+     共 N 本书 / 原件约 X MB / 卸载会清空，下面是能用的
+     「导出整库备份」「从备份恢复」（当时备份落在应用私有下载目录，
+     v1.12.0 起已改成自定义名字 + 自选位置）。桌面端仍显示真实路径 +
+     打开目录。
+  ③ 「设置 → 意见反馈」打开内嵌的云端建议页（/suggest/，同源、
+     匿名、沿用求书页的随机设备号）。你在私密管理端能看建议正文、
+     时间、版本、机型和可选联系方式；同一设备每小时最多 5 条。
+  ④ 匿名使用统计：App 冷启动与回前台各上报一次（12 小时节流），
+     只带匿名设备 UUID、版本、机型、Android 版本；**不传书名、路径、
+     书籍内容，IP 不落库**。「设置 → 匿名使用统计」可一键关闭。
+     管理端新增「使用统计」页签：累计设备、今日 / 7 日 / 30 日活跃、
+     近 7 日新增、版本与机型分布、近 30 天趋势。
+     口径是「设备数 + 日/月活」，不是实时在线人数（App 没有长连接）。
+  ⑤ **桌面 exe 也同步了**：dist\...\resources\app\src 的 16 个正式文件
+     与 PC\src 逐字节一致，桌面端同样有意见反馈入口和目录行为。
+  ⑥ ⚠ 这一版**云端 Python 也改了**：新增 /suggest/、/api/suggest、
+     /api/suggest/all、/or/ping、/or/stats 与 3 张表，管理端加了两个页签。
+     所以这次要重新上传 qiushu-pa.zip、解压并 **Reload 一次**，
+     详见 云端上传说明.txt。以后发新版又回到「只传 publish\ 两个文件」。
+
+【v1.10.0 新增：书架排列方式（方案 2）】
+  ① 书架工具条最左边多了两个按钮：
+     「▦ 网格 / ☰ 列表」在封面网格与**一行一本的紧凑列表**之间切换；
+     「尺寸 大图 / 中图 / 小图」循环切换三档封面大小（列表模式下置灰）。
+     设置弹窗里也有同样的两行：书架排列 / 封面尺寸。
+  ② 紧凑列表：小封面 40×56（手机 34×48）+ 完整书名 + 作者·格式 +
+     章节·大小·已读% + 底部进度条，行高约 74px，手机一屏 10 本以上。
+     仍复用 .book-card 外壳，点击打开、右键菜单、**拖到左侧分类**全部照常。
+  ③ 三档密度（桌面 / 手机列宽）：
+       大  152 / 112px · 封面 196px（原来的样子）
+       中  120 / 92px  · 封面 150 / 124px  ← **新版默认**
+       小   96 / 72px  · 封面 116 / 98px，小档自动隐藏副标题与格式角标
+  ④ 偏好写进 settings.json 的 shelf_view / shelf_density，随书库备份迁移；
+     两个按钮串行提交，连点不会互相覆盖（与排序同一套保险）。
+     默认改成「中图」是因为原来 196px 大封面在手机上太占面积，
+     想要回大图点一下「尺寸」即可。CSS 全是固定 px 声明，P40 老 WebView 可解析。
+  ⑤ **桌面 exe 这次也同步了**：dist\开放书库\resources\app\src 下 16 个正式文件
+     与 PC\src 逐字节一致，桌面端同样有这两种排列，以及之前一直
+     只在源码里的连续滚动 / 仿真翻书 / 双击全屏。
+
+【v1.9.0 新增：新图标 + 启动强制更新】
+  ① 换成圆角方形启动图标（蓝紫渐变底 + 摊开的白书），另附正圆版
+     供各厂商桌面用圆形遮罩；5 个密度共 10 张 PNG。
+     设计要改只改 安卓\make-icon.py，跑 python make-icon.py 重生成，
+     build-apk.ps1 会自动 aapt2 compile 并打进 APK。
+  ② **打开软件就检查更新，有新版必须更新才能继续用**：
+     - 原生弹不可取消的对话框，只有「立即更新」和「退出应用」；
+       按返回键、点框外、切后台回来都绕不过去，WebView 同时被禁用。
+     - 点「立即更新」→ 下载 → SHA-256 校验 → 系统安装器；
+       覆盖安装不清空书库。系统安装这一步仍需用户手动确认。
+     - 清单里 force=true；以后想发「可选更新」把 version.json 的
+       force 改成 false 即可（旧客户端缺省也当 true）。
+  ③ **断网 / 云端过期 / 清单损坏一律放行**，不会把 App 锁死：
+     PythonAnywhere 免费版会闲置过期，那时若强制拦截，离线书库就打不开了。
+     所以只有「确实拉到一份完整且更高版本的清单」才会拦。
+  ④ 前端不再重复发启动检查请求（24h 节流那段已停用），
+     「设置 → 检查更新」手动入口保留。
+  ※ 历史说明：发 1.9.0 时需要手动装一次（1.8.0 里没有强制门代码）。
+    现在手机若已是 1.9.0 ~ 1.14.0，打开就会被 1.15.0 的清单
+    拦下并自动引导更新，不用手动装；只有仍停在 1.8.0 及更老的包才需要手动装一次。
+
+【装到手机】
+  把 OpenReader.apk 发到手机（微信 / QQ / USB 拷贝），点开安装，
+  系统提示「未知来源」时允许即可。有 adb 则：
+      adb devices
+      adb install -r "D:\woby\阅读\安卓\OpenReader.apk"
+
+【v1.8.0 新增：像翻书一样一页一页翻 + 双击全屏】
+  ① 「▤ 翻书」不再是「点一下换 6000 字」，而是按屏幕高度切成一屏一页：
+     - 纸页绕书脊做 3D 旋转（rotateY 88°）+ 纸张渐变阴影，底层下一页
+       从书脊一侧露出，视觉上就是翻书；老 WebView 没有 3D 时自动降级
+       为横向滑动，设置里还能选「无动画」。
+     - 翻页方式（四种并存）：左右滑动、点屏幕左 1/3 / 右 1/3、
+       底部「上一页 / 下一页」按钮、桌面滚轮与 ← → 方向键。
+     - **跨章连续填充**：短章不再各占一整页留白，下一章文字会接着排满
+       当前页（parts[] 逐段记录章内绝对偏移，进度与重排都不会错）。
+     - 向后翻到缓存末尾自动续下一段 / 下一章，向前翻出缓存会自动补回
+       上一段 / 上一章，不用回目录。
+     - 测量用离屏容器二分找每页最大可容纳字符数，留 20px 余量，
+       **宁可留白也绝不裁字**；页间字符连续性由自检逐段校验。
+  ② **双击正文 = 进入 / 退出全屏**，两种阅读方式都生效。
+     - Android WebView 通常不派发 dblclick（双击被缩放手势吞掉），
+       所以自己按 click 的时间戳 + 位移判定，单击翻页延迟 360ms，
+       双击会取消那次待执行的单击，不会误翻页。
+     - Java 里关掉了双击缩放（setSupportZoom(false)），保证第二次 click
+       能送到页面。
+     - 全屏 / 横竖屏 / 改字号 / 改行距后，正文高度变了会**自动重新分页**
+       并按「缓存全文字符序号」回到原来那一页，不会跑位、不会裁字。
+  ③ 工具条按钮文案「⇅ 连续 / ▤ 翻书」，设置里新增「翻书动画」三档
+     （仿真 / 滑动 / 无动画）和全屏说明。连续滚动模式完全保留原样。
+  ④ 扫描版 PDF 仍走原来的图片流，不套书页。
+
+【v1.7.0 已有：应用内更新基础链路（v1.9.0 起改为强制）】
+  底层链路不变：GET /or/update.json → 下载 APK → SHA-256 校验 →
+  用 content:// 交给系统安装器。现在启动检查与弹窗由 Java 层接管，
+  前端只保留「设置 → 检查更新」手动入口，不再重复发请求。
+    - **做不到完全静默安装**（那需要 root / 系统签名 / 应用商店渠道），
+      最后这一步系统必须让用户确认。
+    - 站点休眠 / 无网络 / 清单损坏时静默失败，只写 logcat
+      （adb logcat -s OpenReader），并且**不拦截阅读**（见 v1.9.0 ③）。
+  首次更新需要授权一次「安装未知应用」；华为纯净模式 / 小米 / OPPO / vivo
+  还会弹「未经安全检测」，需手动点「仍要安装」。每台机器只需放一次。
+
+【云端：v1.11.0 曾重部署过一次（历史，已完成；本版不用做）】
+  更新源复用你已有的 https://soshu.pythonanywhere.com/，0 元、不新增账号。
+  当时云端 Python 新增了建议与统计的路由和表，所以不是「只传 2 个文件」：
+  1) Files 页上传 D:\woby\阅读\Server\qiushu-pa.zip 到 ~。
+     内含 qiushu_app.py / install.py / test_pa.py /
+     qiushu_templates\{index,admin,shuku,suggest}.html / or_update\update.json
+  2) Bash 控制台：
+         cd ~ && unzip -o qiushu-pa.zip && python3 install.py
+     预期看到「✓ 文件齐全」「✓ 语法检查通过」。
+  3) **立刻**把 publish\ 的 update.json + OpenReader.apk 上传到
+     ~/or_update/ 覆盖同名（解压会把清单覆盖成占位文件，必须先修回来）。
+  4) Web 页签点【Reload soshu.pythonanywhere.com】——新增路由必须 Reload。
+  5) 验证：
+         curl -s https://soshu.pythonanywhere.com/or/update.json
+     当时应显示 code 10 / 1.11.0 / force=true，没有 _placeholder。
+         curl -s -o /dev/null -w "%{http_code}\n" https://soshu.pythonanywhere.com/suggest/
+     应输出 200；管理端（私密地址）解锁后应看到三个页签。
+  详细顺序、统计接口与管理口令验证见 云端上传说明.txt。
+
+【云端：以后每次发新版（两步，不用 Reload）】
+  1) 双击 构建APK.bat（或跑 build-apk.ps1）。脚本自动生成：
+         D:\woby\阅读\安卓\publish\update.json
+         D:\woby\阅读\安卓\publish\OpenReader.apk
+     update.json 带版本号、更新说明、下载地址、APK 的 SHA-256、force，
+     脚本已校验 sha256 与实际 APK 一致、文件为 UTF-8 无 BOM。
+  2) 把 publish\ 里的**这两个文件**上传到 PythonAnywhere 的 ~/or_update/
+     覆盖同名文件即可（Flask 每次请求重读文件，**不需要 Reload**）。
+     本版验证：
+         curl https://soshu.pythonanywhere.com/or/update.json
+     应显示 code 14 / 1.15.0 / force=true
+     和 sha256 = 31a8045fdcbecfff5fa18286d5c4d9487be7ecd17342…
+         curl -I https://soshu.pythonanywhere.com/or/OpenReader.apk
+     应返回 200 + application/vnd.android.package-archive。
+     （v1.12.0 开始已恢复本节两步：不用重部署 zip、不用 Reload。上一节的
+      重部署是 v1.11.0 的历史动作，已经做完就不要再跑 install.py，否则会
+      把清单覆盖回占位文件。）
+     ⚠ 清单和 APK 要一起传：只传清单但 APK 还是旧的，会反复下载错包或
+       提示「安装包校验失败」；只传 APK 不改清单，sha256 同样对不上。
+  发版前改版本号（**唯一真源**）：
+     改 D:\woby\阅读\安卓\version.json 的 code / name / notes，
+     再把 app\src\main\AndroidManifest.xml、app\build.gradle 两处改成一致。
+     build-apk.ps1 会校验三处 + Java 里的 UPDATE_URL，不一致直接报错不出包。
+     sync-web.mjs 从 version.json 注入页面版本，自检条从
+     <meta name="or-version"> 读，不用再逐个改版本字符串。
+
+【版本号 / 签名：两个不能踩的坑】
+  - **debug.keystore 绝对不能丢、不能换**。换签名后所有用户只能卸载重装，
+    而书库存在 App 内 IndexedDB，卸载 = 书全没。已额外备份到：
+        安卓\_签名备份\debug.keystore
+        PC\_签名备份-debug.keystore
+    三份 SHA-256 均为 1b82e1ffd2c407b3…（test-android-update.mjs 会复验）。
+  - PythonAnywhere 免费版**闲置 1 个月会过期**（2026 年起从 3 个月缩短），
+    需每月登录点一次续期。真过期时 App 侧静默放行、不影响阅读——
+    这正是强制更新刻意保留的兜底，否则站点一挂整个离线书库就打不开。
+  - JSON 里预留了 fallback_url，但**暂未实现备用源自动降级**。
+    Gitee Release 附件需要登录且有防盗链，不适合程序内直链下载；
+    人工下载页 https://soshu.pythonanywhere.com/or/ 可用。
+
+【v1.6.0 已有：一次滑动读到底 + 目录不再重复】
+  ① 两种阅读方式并存：「⇅ 连续」默认（滚到底自动续章、DOM 只留 6 章窗口），
+     「▤ 翻书」现在是仿真书页（见上）；入口在工具条，设置里也有。
+  ② 分节体目录合并：网文「第N章 主标题（1）…（10）」不再被拆成十章，
+     《亿万星辰不及你》实测 956 章 → 82 章，首尾相接不丢字，
+     标题写真实范围「第111–120章 …」，输入原章号 115 能跳到对应合并章。
+  ③ PARSER_VERSION 2→3，已导入的书启动时自动重解析，进度与书签按
+     全书绝对偏移迁移，不用重新导入。
+
+【这一版有什么：整个开放书库】
+  本地书架：导入、分类、排序、封面、删除、重命名、设置、
+            封面网格 / 紧凑列表两种排列 + 大 / 中 / 小三档封面尺寸
+  阅读：自动分章（含分节合并）、目录、连续滚动 / 仿真翻书、页码 / 章号跳转、
+        字号 / 主题 / 行距、进度记忆、书签、双击全屏
+  检索：书名 + 全文检索（内存索引）、重建索引
+  格式：TXT / EPUB / PDF / DOCX / HTML / MOBI / FB2 等，扫描版 PDF 按页显示
+  导入：单本、批量多选、整库包 .openlib、普通 ZIP（自动分诊去重）
+  导出：单本原件、整库包；文件写到手机存储并弹出路径提示
+  在线：云书库（站内 32699 本检索）、求书（提交与我的记录）、
+        意见反馈（内嵌建议页）、匿名使用统计（可关闭）、应用内更新
+
+【数据存在哪 · 务必看】
+  书与进度存在 **App 内部的 IndexedDB**（不占外部存储、不申请文件权限）。
+  **卸载 App 会连同书库一起删掉**，请定期用「导出整库」备份。
+  覆盖升级不会清数据；「清除数据」会重置书库。
+  导出的文件在 Android/data/com.openreader.app/files/Download/export/。
+
+【和 Windows 版的差异】
+  1.「导入文件夹」改成「批量导入」：WebView 不支持选整个目录，拖放也用不了。
+  2. 导出改为写到手机存储并提示路径。
+  3. 求书到货角标在安卓版不亮（依赖桌面 Electron 的本地 IPC），求书页本身正常。
+  4. 应用内更新只在安卓版启用；桌面源码里这段代码检测不到原生桥就整段静默。
+
+【源码同步（改过之后怎么重新出包）】
+  安卓 assets 是桌面源码 D:\woby\阅读\PC\src 的生成副本。
+  v1.12.0 改动：桌面源码 src\web\app.js（exportLibrary 自定义文件名 +
+    设置数据卡片显示上次备份）、安卓 bootstrap.mjs（把名字交给 SAF 桥）、
+    MainActivity.java（ACTION_CREATE_DOCUMENT 保存窗口、持久化 URI、
+    恢复时注入 EXTRA_INITIAL_URI）、sync-web.mjs（导出断言 5→3）、
+    version.json / Manifest / build.gradle、三套测试、两份说明，
+    均留 .bak-backup 备份。**云端 Python 一个字没动**，不用重部署 zip、
+    不用 Reload，只覆盖 ~/or_update/ 的两个文件。
+  以下是 v1.11.0 的改动记录（历史）：
+  v1.11.0 改动：桌面源码 src\core\library.mjs、src\web\app.js、
+  src\web\style.css、src\web\index.html；安卓 MainActivity.java、
+  version.json / Manifest / build.gradle / test-android-ui.mjs /
+  test-android-update.mjs / 两份说明；云端 qiushu_app.py、
+  qiushu_templates\admin.html、suggest.html（新）、install.py、test_pa.py。
+  这些原文件都留了 .bak-1110 备份；assets 里以前残留的两个 .bak 也移到
+  安卓\ 根目录，包内现在只有 24 个正式 assets。
+  **桌面 exe 产物源码副本已同步**：dist\开放书库\resources\app\src 下
+  16 个正式文件与 PC\src 逐字节一致，两端功能对齐。
+  **v1.11.0 曾重新打包 qiushu-pa.zip 并部署 + Reload（历史，已完成）**；
+  v1.12.0 云端 Python 未改动，不用重部署、不用 Reload。
+      node sync-web.mjs            从桌面源码重新生成 assets + 打 bundle.js
+      node test-android-core.mjs   内存版 IndexedDB 跑通整套 core（41 项）
+      node test-android-ui.mjs     Chromium 渲染 + 目录/设置/翻书（84 项）
+      node test-android-compat.mjs 老 WebView 模拟 + CSS/Java 静态检查（64 项）
+      node test-android-update.mjs 更新链路 + 强制门 + 备份桥 + 签名（73 项）
+      node test\verify-packaged.mjs 桌面绿色版端到端（33 项，在 open-reader 下跑）
+      node test\run-tests.mjs      桌面核心（14 项，在 open-reader 下跑）
+      双击 构建APK.bat             重新出包并生成 publish\
+  云端自检（本机没装 Flask 时用本地 .test-flask 目录）：
+      set PYTHONPATH=D:\woby\阅读\Server\.test-flask
+      python qiushu-pa\test_pa.py        （94 项；临时库自动清理）
+  PythonAnywhere 上：cd ~ && python3 test_pa.py。
+  构建依赖装在工具链目录，别删：
+      %LOCALAPPDATA%\OpenReaderToolchain\node_modules\  （esbuild + fflate）
+      %LOCALAPPDATA%\OpenReaderToolchain\               （jdk + sdk）
+  sync-web.mjs 会覆盖 index.html / app.js / style.css / core\*.mjs / bundle.js，
+  bootstrap.mjs、api-bridge.mjs、android-storage.mjs、compat.js、shell.js、
+  mobile.css 是安卓专属，不会被覆盖。
+  _ui-check*.png 是渲染自检生成的效果图（_ui-check-list.png 是紧凑列表、
+  _ui-check-book.png 是书页、_ui-check-flip.png 是翻动中间帧），可删。
+
+【实现原理】
+    compat.js            ES5 运行时补丁（含纯 JS SHA-256），最先加载
+    android-storage.mjs  IndexedDB 实现同一组 StorageBackend 方法
+    api-bridge.mjs       覆盖 window.fetch，把 /api/* 直接调 LibraryApp
+    bootstrap.mjs        先装桥再加载 app.js；封面转 blob、导出桥
+    shell.js             手机导航壳 + 启动自检 + 返回键（ES5 classic）
+    bundle.js            esbuild 产物：全部模块 + app.js + core，ES2016 IIFE
+    vendor/fflate.mjs    纯 JS DEFLATE，替代老 WebView 没有的 DecompressionStream
+    mobile.css           手机布局（顶栏 / 底栏 / 抽屉 / 沉浸 / 安全区 / 多档屏）
+    MainActivity.java    虚拟 https origin、文件选择、导出保存、外链接管、
+                         返回键、状态栏主题、ROM 兼容、应用内更新、
+                         匿名统计心跳（SharedPreferences + 12h 节流）、禁双击缩放
+    ApkProvider.java     零依赖 FileProvider 等价物（工程没有 androidx），
+                         只把 files/apk/update.apk 以 content:// 交给系统安装器
+  顶栏与底栏只是「转发点击」到桌面侧栏里已有的真实按钮，没有另写业务逻辑。
+
+【验证结果（本轮 v1.15.0）】
+  安卓 core **41/41**、CDP 真实渲染 **84/84**、老引擎兼容 **64/64**、
+    更新链路 **79/79**；桌面 run-tests **14/14**、verify-packaged **33/33**、
+    桌面完整性清单 **28/28**（生成→校验→改一字节后拒绝）。
+  云端 Python 本轮未改动，沿用 v1.11.0 那次 Flask **94/94** 的结果。
+  APK 318,228 B；包内 24 个 assets 与源码逐字节一致；
+    bundle 292,787 B，无 ?. / ?? / import() / async 残留；
+    classes.dex 内含注入的签名指纹与 24 条 assets 哈希；
+    apksigner --print-certs 的 SHA-256 与注入指纹逐字一致；
+    classic 脚本顺序 compat → shell → bundle；
+    javac / d8 / aapt2 真实编译通过；v2 + v3 签名验证通过；
+    aapt2 badging = versionCode 14 / 1.15.0 + REQUEST_INSTALL_PACKAGES。
+  publish\update.json 无 BOM、code 14 / force=true、sha256 与 APK 逐字节一致：
+    31a8045fdcbecfff5fa18286d5c4d9487be7ecd173423df1447af40cd9f2c153
+  qiushu-pa.zip 37,324 B，含 8 个文件（新增 suggest.html）。
+
+【已知边界】
+  - 渲染验证是本机 Chromium（多视口 + 移动设备模拟 + 禁用 JS），
+    **不是真机 WebView**；3D 翻页在各厂商 GPU 合成上的表现、双击手势在
+    各 ROM 上的 click 派发，还需要你在 P40 上实装确认。
+    装上后若异常，红色自检条截图 + adb logcat -s OpenReader 发我。
+  - 应用商店渠道（软著 / 实名 / 审核）不在本方案内；本方案是自建分发。
+  - 连续流只向前追加、向前裁剪，往回翻很多章需用目录重开。
+  - 书页缓存末尾（还没预取到新段时）可能有一页未排满，再往后翻一次即补齐。
+  - 点「打开下载」会跳夸克网盘，仍会看到 pan.quark.cn。
+  - 求书到货角标不亮（只依赖桌面 Electron 的本地 IPC），求书页本身正常。
+  - 使用统计只覆盖安卓 App 的上报，桌面 exe 不计入；「今日活跃」按
+    匿名设备 UUID 按天去重，不是实时在线人数。站点休眠期间会缺数据。
+  - 管理端的建议列表目前只读（没有已读 / 回复状态），需要的话可再加。

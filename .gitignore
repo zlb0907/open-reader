@@ -1,0 +1,27 @@
+# 公开源码仓库：只保留客户端源码，产物与敏感文件一律不进
+
+# 可重建产物
+node_modules/
+dist/
+*.exe
+*.apk
+
+# 敏感：密钥、token、数据库、服务端
+*.keystore
+*token*
+*.db
+server/
+Server/
+qiushu-pa/
+*_签名备份*
+
+# 缓存
+__pycache__/
+*.pyc
+.gradle/
+app/build/
+
+# 系统杂项
+Thumbs.db
+desktop.ini
+.DS_Store

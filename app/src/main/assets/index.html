@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>开放书库 · 阅读器</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<meta name="or-version" content="1.17.1">
+<link rel="stylesheet" href="/style.css">
+<link rel="stylesheet" href="/mobile.css">
+</head>
+<body data-theme="light">
+<header id="or-topbar">
+  <button id="or-menu-btn" type="button" aria-label="打开菜单" title="开放书库 v1.17.1"><svg class="or-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+  <div id="or-title">开放书库</div>
+  <button id="or-search-btn" type="button" aria-label="搜索"><svg class="or-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5 5"/></svg></button>
+  <button id="or-import-btn" type="button" aria-label="导入书籍"><svg class="or-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>导入</span></button>
+</header>
+<nav id="or-tabbar" aria-label="主导航">
+  <button class="or-tab active" data-or="shelf" type="button"><svg class="or-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M4 9h16M9 3v18"/></svg><span>书架</span></button>
+  <button class="or-tab" data-or="bookmarks" type="button"><svg class="or-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12v18l-6-4-6 4V3z"/></svg><span>书签</span></button>
+  <button class="or-tab" data-or="shuku" type="button"><svg class="or-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 18h10a3.5 3.5 0 0 0 .3-7 5.5 5.5 0 0 0-10.6 1.6A3.2 3.2 0 0 0 7 18z"/></svg><span>云书库</span></button>
+  <button class="or-tab" data-or="request" type="button"><svg class="or-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l4-1 11-11-3-3L5 16l-1 4z"/><path d="M14 6l3 3"/></svg><span>求书</span></button>
+  <button class="or-tab" data-or="settings" type="button"><svg class="or-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="2"/><circle cx="15" cy="17" r="2"/></svg><span>设置</span></button>
+</nav>
+<div id="or-mask"></div>
+<button id="or-drawer-close" type="button" aria-label="关闭菜单">×</button>
+<div id="or-diag" class="hidden"></div>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-icon"><span></span><span></span><span></span></div>
+      <div class="brand-text"><b>开放书库</b><small>OPEN READER · ANDROID v1.17.1</small></div>
+    </div>
+
+    <div class="search-box">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5L21 21"/></svg>
+      <input id="search" type="search" placeholder="搜索书名或全文…" autocomplete="off" spellcheck="false">
+    </div>
+    <button id="btn-import" class="btn-import">＋ 导入书籍</button>
+    <button id="btn-import-dir" class="btn-import btn-import-sub" title="一次选择多本书批量导入">＋ 批量导入</button>
+
+    <nav class="nav" id="nav">
+      <button class="nav-item active" data-view="all"><i>▤</i>全部书籍<em id="count-all">0</em></button>
+      <button class="nav-item" data-view="recent"><i>◷</i>最近阅读<em id="count-recent">0</em></button>
+      <button class="nav-item" data-view="bookmarks"><i>☆</i>我的书签<em id="count-bookmarks">0</em></button>
+      <button class="nav-item" data-view="unfiled"><i>◇</i>未分类<em id="count-unfiled">0</em></button>
+      <button class="nav-item" data-view="shuku"><i>☁</i>云书库</button>
+      <button class="nav-item" data-view="request"><i>✎</i>求书<em id="badge-qiushu" class="unread-badge hidden" title="有求的书已找到">0</em></button>
+    </nav>
+
+    <div class="section-head"><span>我的书架</span><button id="btn-add-collection" class="mini" title="新建分类">＋</button></div>
+    <div id="collections" class="collections"></div>
+
+    <div class="sidebar-foot">
+      <div class="foot-row">
+        <button id="btn-settings" class="foot-btn">⚙ 设置</button>
+        <button id="btn-help" class="foot-btn">? 帮助</button>
+        <button id="btn-about" class="foot-btn">ⓘ 关于</button>
+      </div>
+      <div id="lib-path" class="path" title="书库目录"></div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <!-- 书架 -->
+    <section id="view-shelf" class="view">
+      <header class="main-head">
+        <div class="head-title"><h1 id="shelf-title">全部书籍</h1><p id="shelf-sub" class="sub"></p></div>
+        <div class="head-actions">
+          <button id="btn-bulk" class="ghost" title="批量整理：勾选多本书一起加入 / 移出分类">☑ 批量整理</button>
+          <button id="btn-shelf-view" class="ghost" title="切换书架排列：封面网格 / 紧凑列表">▦ 网格</button>
+          <button id="btn-shelf-density" class="ghost" title="切换封面尺寸：大 / 中 / 小">尺寸 中图</button>
+          <div class="sort-box">
+            <label for="sort-by">排序</label>
+            <select id="sort-by" class="sort-select" title="选择排序方式">
+              <option value="added">添加时间</option>
+              <option value="title">名称</option>
+              <option value="author">作者</option>
+              <option value="size">大小</option>
+              <option value="recent">最近阅读</option>
+              <option value="format">格式</option>
+              <option value="chapters">章节数</option>
+            </select>
+            <button id="btn-sort-dir" class="ghost sort-dir" title="切换升序 / 降序">↑ 升序</button>
+          </div>
+          <button id="btn-export-lib" class="ghost">导出整库</button>
+          <button id="btn-import-lib" class="ghost" title="整库包 / 普通书籍压缩包都能识别">导入整库</button>
+          <button id="btn-reindex" class="ghost" title="重建全文检索索引">重建索引</button>
+        </div>
+      </header>
+      <div id="search-result" class="search-result hidden"></div>
+      <div id="shelf-grid" class="shelf-grid"></div>
+      <div id="bulk-bar" class="bulk-bar hidden">
+        <span id="bulk-count">已选 0 本</span>
+        <button id="bulk-all" class="ghost">全选</button>
+        <button id="bulk-invert" class="ghost" title="把当前列表里已选的取消、未选的选中">反选</button>
+        <button id="bulk-cat" class="ghost">调整分类…</button>
+        <button id="bulk-clear" class="ghost">移出全部分类</button>
+        <button id="bulk-delete" class="ghost danger" title="从书库删除勾选的书">删除所选</button>
+        <button id="bulk-exit" class="solid">完成</button>
+      </div>
+    </section>
+
+    <!-- 云书库：站内已有书籍的在线检索页 -->
+    <section id="view-shuku" class="view hidden">
+      <header class="main-head">
+        <div class="head-title"><h1>云书库</h1><p class="sub">站内已有书籍 · 搜到即可打开下载</p></div>
+      </header>
+      <div id="shuku-body" class="request-body"></div>
+    </section>
+
+    <!-- 求书 -->
+    <section id="view-request" class="view hidden">
+      <header class="main-head">
+        <div class="head-title"><h1>求书</h1></div>
+      </header>
+      <div id="request-body" class="request-body"></div>
+    </section>
+
+    <!-- 用户建议：内嵌在线反馈页，入口在「设置 → 意见反馈」 -->
+    <section id="view-suggest" class="view hidden">
+      <header class="main-head">
+        <div class="head-title"><h1>意见反馈</h1><p class="sub">匿名提交 · 只在你点开时联网</p></div>
+        <div class="head-actions"><button id="btn-suggest-back" class="ghost">← 返回书架</button></div>
+      </header>
+      <div id="suggest-body" class="request-body"></div>
+    </section>
+
+    <!-- 书签 -->
+    <section id="view-bookmarks" class="view hidden">
+      <header class="main-head">
+        <div class="head-title"><h1>我的书签</h1><p class="sub">点击条目直接跳回阅读位置</p></div>
+      </header>
+      <div id="bookmark-list" class="bookmark-list"></div>
+    </section>
+
+    <!-- 阅读 -->
+    <section id="view-reader" class="view hidden">
+      <div class="reader-shell">
+        <aside class="toc" id="toc">
+          <div class="toc-head">
+            <b>目录</b><span id="toc-count" class="toc-count">0 章</span>
+            <button id="btn-toc-collapse" class="mini" title="收起目录">‹</button>
+          </div>
+          <div class="toc-tools">
+            <input id="toc-filter" type="search" placeholder="筛选章节 / 输入页码回车跳转"
+              autocomplete="off" spellcheck="false">
+          </div>
+          <div id="toc-list" class="toc-list"></div>
+        </aside>
+        <div class="reader-main">
+          <div class="reader-bar">
+            <button id="btn-back" class="ghost">← 书架</button>
+            <button id="btn-read-mode" class="ghost" title="切换阅读方式：连续滚动 / 翻页阅读">⇅ 连续</button>
+            <button id="btn-toc-expand" class="ghost hidden" title="展开目录">☰ 目录</button>
+            <strong id="reader-title" class="reader-title"></strong>
+            <span class="spacer"></span>
+            <button id="btn-font-sm" class="ghost" title="缩小字号">A−</button>
+            <button id="btn-font-lg" class="ghost" title="放大字号">A＋</button>
+            <button id="btn-theme" class="ghost" title="切换主题">◐ 主题</button>
+            <button id="btn-bookmark" class="ghost" title="添加书签">☆ 书签</button>
+            <button id="btn-immersive" class="ghost" title="全屏阅读（F11）">⛶ 全屏</button>
+            <button id="btn-export-book" class="ghost" title="导出原始文件">导出</button>
+          </div>
+          <div class="progress-track"><div id="progress-fill"></div></div>
+          <article id="content" class="content"></article>
+          <div class="reader-foot">
+            <button id="btn-prev" class="ghost">← 上一页</button>
+            <span id="page-info" class="muted"></span>
+            <button id="btn-next" class="ghost">下一页 →</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<button id="btn-exit-immersive" class="immersive-exit" title="退出全屏阅读（F11 / Esc）">⤢ 退出全屏</button>
+
+<!-- 使用帮助：全部内容离线内置，不加载任何图片或外部资源 -->
+<div id="help-mask" class="drawer-mask"></div>
+<aside id="help-sheet" class="help-sheet" role="dialog" aria-label="使用帮助" aria-hidden="true">
+  <div class="drawer-head">
+    <b>使用帮助</b>
+    <button id="btn-close-help" class="icon-btn" title="关闭（Esc）">✕</button>
+  </div>
+  <div class="help-body">
+    <p class="help-hint">点标题展开，按步骤看。全部内容内置在应用里，断网也能查。</p>
+
+    <details open>
+      <summary>① 三分钟上手（看图照做）</summary>
+      <div class="help-inner">
+        <figure class="help-fig">
+          <svg viewBox="0 0 340 300" role="img" aria-label="导入、打开、调排版、继续读四步流程">
+            <title>三分钟上手流程</title>
+            <desc>依次导入书籍、打开阅读、调整排版、下次继续读</desc>
+            <defs>
+              <marker id="orHelpArrow1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </marker>
+            </defs>
+            <g class="fig-blue"><rect x="55" y="16" width="230" height="56" rx="9" stroke-width="0.5"/>
+              <text class="t" x="170" y="35" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="600">1 · 导入</text>
+              <text class="s" x="170" y="55" text-anchor="middle" dominant-baseline="central" font-size="12">选文件 / 文件夹 / 拖进窗口</text></g>
+            <path class="arr arr-blue" d="M170 72V84" marker-end="url(#orHelpArrow1)"/>
+            <g class="fig-blue"><rect x="55" y="88" width="230" height="56" rx="9" stroke-width="0.5"/>
+              <text class="t" x="170" y="107" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="600">2 · 打开</text>
+              <text class="s" x="170" y="127" text-anchor="middle" dominant-baseline="central" font-size="12">点封面进入，左侧目录跳章</text></g>
+            <path class="arr arr-blue" d="M170 144V156" marker-end="url(#orHelpArrow1)"/>
+            <g class="fig-blue"><rect x="55" y="160" width="230" height="56" rx="9" stroke-width="0.5"/>
+              <text class="t" x="170" y="179" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="600">3 · 调排版</text>
+              <text class="s" x="170" y="199" text-anchor="middle" dominant-baseline="central" font-size="12">字号 / 主题 / 行距 / 翻书</text></g>
+            <path class="arr arr-blue" d="M170 216V228" marker-end="url(#orHelpArrow1)"/>
+            <g class="fig-blue"><rect x="55" y="232" width="230" height="56" rx="9" stroke-width="0.5"/>
+              <text class="t" x="170" y="251" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="600">4 · 继续读</text>
+              <text class="s" x="170" y="271" text-anchor="middle" dominant-baseline="central" font-size="12">进度自动存，书签可跳回</text></g>
+          </svg>
+          <figcaption>四步走完，书就在本机安心读</figcaption>
+        </figure>
+        <ol>
+          <li><b>导入</b>：侧栏点「＋ 导入书籍」选文件，或点「＋ 导入文件夹」一次收整本书架。也能把书直接拖进窗口。</li>
+          <li><b>打开</b>：在书架点封面，进入阅读；左侧目录列章节，点章节直接跳。</li>
+          <li><b>调舒服</b>：顶部 A− / A＋ 调字号，「◐ 主题」切换明亮 / 护眼 / 深夜，侧栏底部「⚙ 设置」里还能调字体、行距、翻书动画。</li>
+          <li><b>继续读</b>：阅读进度自动保存，下次打开同一本书接着上次的位置；「最近阅读」和「我的书签」都能快速回去。</li>
+        </ol>
+        <div class="help-note">书和进度都存在本机，不上传。换电脑或重装前，先到「设置 → 导出整库」备份一份。</div>
+      </div>
+    </details>
+
+    <details>
+      <summary>② 支持哪些格式</summary>
+      <div class="help-inner">
+        <table class="help-table">
+          <tr><th>类别</th><th>格式</th><th>说明</th></tr>
+          <tr><td>文字书</td><td>TXT / MD / EPUB / DOCX / DOC / RTF / ODT / FB2 / HTML / MHTML</td><td>自动识别编码与章节，推荐 TXT / EPUB</td></tr>
+          <tr><td>电子书</td><td>MOBI / PRC / PDB / AZW / AZW3</td><td>AZW3 的 HUFF/CDIC 压缩也能读</td></tr>
+          <tr><td>扫描版</td><td>PDF</td><td>图片页连续滚动，双指缩放</td></tr>
+          <tr><td>打包</td><td>ZIP / .openlib</td><td>整库包或多本书一次导入</td></tr>
+        </table>
+        <div class="help-note">受 DRM 加密的版权书打不开，需要先在其他工具里解除保护再导入。</div>
+      </div>
+    </details>
+
+    <details>
+      <summary>③ 阅读与排版</summary>
+      <div class="help-inner">
+        <div class="help-cards">
+          <div class="help-card"><h4>两种阅读方式</h4><p>顶部「⇅ 连续」可切换连续滚动 / 仿真翻书。设置里可选仿真 / 滑动 / 无动画，每页字数也能自己定。</p></div>
+          <div class="help-card"><h4>章节与跳转</h4><p>左侧目录列出全部章节；目录顶部输入框可按名称筛选，输入页码回车直接跳到那一页。</p></div>
+          <div class="help-card"><h4>书签与全屏</h4><p>顶部「☆ 书签」记下当前位置，侧栏「我的书签」可一键跳回。「⛶ 全屏」或 F11 进入沉浸阅读。</p></div>
+        </div>
+        <table class="help-table">
+          <tr><th>按键</th><th>作用</th></tr>
+          <tr><td><span class="help-kbd">→</span> <span class="help-kbd">空格</span> <span class="help-kbd">PageDown</span></td><td>下一页</td></tr>
+          <tr><td><span class="help-kbd">←</span> <span class="help-kbd">PageUp</span></td><td>上一页</td></tr>
+          <tr><td><span class="help-kbd">Ctrl / ⌘ + F</span></td><td>聚焦搜索框</td></tr>
+          <tr><td><span class="help-kbd">F11</span></td><td>全屏阅读（阅读时）</td></tr>
+          <tr><td><span class="help-kbd">Esc</span></td><td>退出全屏 / 关闭弹窗 / 返回书架</td></tr>
+        </table>
+        <div class="help-note">手机上没有键盘：轻点屏幕中部唤出/隐藏工具栏，左右滑动翻页，双击正文进全屏。</div>
+      </div>
+    </details>
+
+    <details>
+      <summary>④ 找书：搜索、分类、批量整理</summary>
+      <div class="help-inner">
+        <ul>
+          <li><b>全文搜索</b>：侧栏搜索框输入关键词，书名和正文都会命中，结果显示命中段落，点结果直接跳到那一章。</li>
+          <li><b>排序与筛选</b>：书架顶部可按添加时间 / 名称 / 作者 / 大小 / 最近阅读 / 格式 / 章节数排序，「全部 / 最近阅读 / 未分类」快速切换。</li>
+          <li><b>分类</b>：侧栏「我的书架」旁点 ＋ 新建分类；书中右键或「批量整理」可加入 / 移出分类。</li>
+          <li><b>批量整理</b>：书架顶部「☑ 批量整理」→ 勾选多本 → 调整分类 / 移出分类 / 删除所选，支持全选和反选。</li>
+        </ul>
+        <div class="help-note">删除的书会从书架消失；只要没清回收站数据，仍可从整库备份里找回。</div>
+      </div>
+    </details>
+
+    <details>
+      <summary>⑤ 备份、迁移与误删</summary>
+      <div class="help-inner">
+        <figure class="help-fig">
+          <svg viewBox="0 0 340 230" role="img" aria-label="导出整库备份与恢复流程">
+            <title>备份与恢复流程</title>
+            <desc>设置里导出整库备份，恢复时选从备份恢复；换电脑可直接复制书库文件夹</desc>
+            <defs>
+              <marker id="orHelpArrow2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </marker>
+            </defs>
+            <g class="fig-green"><rect x="100" y="16" width="140" height="44" rx="9" stroke-width="0.5"/>
+              <text class="t" x="170" y="38" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="600">设置 → 导出整库</text></g>
+            <path class="arr arr-green" d="M170 60V82" marker-end="url(#orHelpArrow2)"/>
+            <g class="fig-green"><rect x="100" y="86" width="140" height="44" rx="9" stroke-width="0.5"/>
+              <text class="t" x="170" y="108" text-anchor="middle" dominant-baseline="central" font-size="13" font-weight="600">得到 .openlib 备份</text></g>
+            <path class="arr arr-green" d="M170 130V150" marker-end="url(#orHelpArrow2)"/>
+            <path class="arr arr-green" d="M170 150H80V166" marker-end="url(#orHelpArrow2)"/>
+            <path class="arr arr-amber" d="M170 150H260V166" marker-end="url(#orHelpArrow2)"/>
+            <g class="fig-green"><rect x="16" y="170" width="128" height="44" rx="8" stroke-width="0.5"/>
+              <text class="t" x="80" y="186" text-anchor="middle" dominant-baseline="central" font-size="12" font-weight="600">从备份恢复</text>
+              <text class="s" x="80" y="203" text-anchor="middle" dominant-baseline="central" font-size="11">换机 / 误删后还原来</text></g>
+            <g class="fig-amber"><rect x="196" y="170" width="128" height="44" rx="8" stroke-width="0.5"/>
+              <text class="t" x="260" y="186" text-anchor="middle" dominant-baseline="central" font-size="12" font-weight="600">直接复制文件夹</text>
+              <text class="s" x="260" y="203" text-anchor="middle" dominant-baseline="central" font-size="11">书库是普通目录</text></g>
+          </svg>
+          <figcaption>重装 / 卸载前先导出，书和进度都保住</figcaption>
+        </figure>
+        <ul>
+          <li><b>电脑版</b>：所有数据都在「书库目录」（侧栏最下方显示路径）。设置 → 导出整库，打包成 .openlib；换电脑时把整个目录拷过去，或导入这个包。</li>
+          <li><b>安卓版</b>：书库在本机私有存储，文件管理器看不到。设置 → 导出整库备份 / 从备份恢复，可自己起名字、选保存位置。</li>
+          <li><b>重建索引</b>：书架顶部「重建索引」，全文搜索失效或导入后搜不到时点一下。</li>
+          <li><b>误删</b>：先用最近的整库备份恢复；覆盖恢复会清空现有书库，想保留现有内容请先导出一份当前备份。</li>
+        </ul>
+        <div class="help-warn">卸载应用会清空书库数据，重装前务必先导出整库备份。</div>
+      </div>
+    </details>
+
+    <details>
+      <summary>⑥ 云书库、求书与反馈</summary>
+      <div class="help-inner">
+        <figure class="help-fig">
+          <svg viewBox="0 0 340 215" role="img" aria-label="启动更新检查流程">
+            <title>更新检查流程</title>
+            <desc>启动时检查云端清单，拉取失败静默跳过，发现新版提示下载安装</desc>
+            <defs>
+              <marker id="orHelpArrow3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </marker>
+            </defs>
+            <g class="fig-blue"><rect x="100" y="16" width="140" height="44" rx="9" stroke-width="0.5"/>
+              <text class="t" x="170" y="38" text-anchor="middle" dominant-baseline="central" font-size="13" font-weight="600">启动 → 检查清单</text></g>
+            <path class="arr arr-blue" d="M170 60V82" marker-end="url(#orHelpArrow3)"/>
+            <path class="arr arr-blue" d="M170 82H80V100" marker-end="url(#orHelpArrow3)"/>
+            <path class="arr arr-amber" d="M170 82H260V100" marker-end="url(#orHelpArrow3)"/>
+            <g class="fig-green"><rect x="16" y="104" width="128" height="52" rx="8" stroke-width="0.5"/>
+              <text class="t" x="80" y="123" text-anchor="middle" dominant-baseline="central" font-size="12" font-weight="600">发现新版</text>
+              <text class="s" x="80" y="142" text-anchor="middle" dominant-baseline="central" font-size="11">提示下载安装</text></g>
+            <g class="fig-amber"><rect x="196" y="104" width="128" height="52" rx="8" stroke-width="0.5"/>
+              <text class="t" x="260" y="123" text-anchor="middle" dominant-baseline="central" font-size="12" font-weight="600">拉取失败 / 断网</text>
+              <text class="s" x="260" y="142" text-anchor="middle" dominant-baseline="central" font-size="11">静默跳过照常用</text></g>
+            <path class="arr arr-green" d="M80 156V178" marker-end="url(#orHelpArrow3)"/>
+            <path class="arr arr-amber" d="M260 156V178" marker-end="url(#orHelpArrow3)"/>
+            <g class="fig-green"><rect x="16" y="182" width="128" height="30" rx="8" stroke-width="0.5"/>
+              <text class="s" x="80" y="197" text-anchor="middle" dominant-baseline="central" font-size="11">书库数据不动</text></g>
+            <g class="fig-amber"><rect x="196" y="182" width="128" height="30" rx="8" stroke-width="0.5"/>
+              <text class="s" x="260" y="197" text-anchor="middle" dominant-baseline="central" font-size="11">离线照常读</text></g>
+          </svg>
+          <figcaption>更新只在联网时发生，断网不影响本地阅读</figcaption>
+        </figure>
+        <ul>
+          <li><b>云书库</b>：侧栏「☁ 云书库」，搜站内已有书籍，搜到即可打开下载，只有点开这一页时才联网。</li>
+          <li><b>求书</b>：侧栏「✎ 求书」提交书名，找到后侧栏红点提醒。管理端填入的书籍链接会自动同步到书库，书库只增不减。</li>
+          <li><b>意见反馈</b>：设置 → 意见反馈，匿名提交，只在点开时联网。反馈页带版本号，方便定位问题。</li>
+          <li><b>检查更新</b>：安卓版在设置 → 应用更新 → 检查更新；发现新版会提示下载安装。</li>
+        </ul>
+        <div class="help-note">断网时这些功能会提示加载失败，本地书架和阅读完全不受影响。</div>
+      </div>
+    </details>
+
+    <details>
+      <summary>⑦ 常见问题排查</summary>
+      <div class="help-inner">
+        <table class="help-table">
+          <tr><th>现象</th><th>怎么处理</th></tr>
+          <tr><td>书打不开 / 提示格式不支持</td><td>确认格式在「支持哪些格式」列表里；加密的 DRM 书不支持；用书架顶部「重建索引」后再试。</td></tr>
+          <tr><td>打开是乱码</td><td>多为无 BOM 的 GBK 文本，删除后重新导入让引擎重新识别编码；或先在编辑器里另存为 UTF-8。</td></tr>
+          <tr><td>搜不到内容</td><td>书架顶部「重建索引」；全文搜索只索引文字书，扫描版 PDF 的图片内容搜不到。</td></tr>
+          <tr><td>目录为空或章节不对</td><td>TXT 按常见「第X章」标题识别，非标准标题可能不拆分；EPUB / AZW3 用文件自带目录。</td></tr>
+          <tr><td>打开很慢 / 卡住</td><td>超大部头首次解析会慢一些，等进度条走完；关闭「仿真翻书」动画可减轻负担。</td></tr>
+          <tr><td>云书库 / 求书空白</td><td>检查网络；反馈页只在你点开时联网，断网时不影响本地阅读。</td></tr>
+        </table>
+        <div class="help-note">以上都不行时，到「设置 → 意见反馈」说明书名、格式和具体现象，并带上版本号。</div>
+      </div>
+    </details>
+  </div>
+</aside>
+
+<div id="modal-mask" class="modal-mask hidden"><div id="modal" class="modal" role="dialog"></div></div>
+<div id="context-menu" class="context-menu hidden"></div>
+<div id="drop-mask" class="drop-mask hidden"><div class="drop-inner">＋<p>松开以导入书籍</p><small>支持 单个文件 · 整个文件夹 · ZIP 压缩包（含整库包）</small></div></div>
+<div id="toast" class="toast"></div>
+
+<input id="file-input" type="file" multiple hidden
+  accept=".txt,.md,.markdown,.text,.log,.rst,.tex,.srt,.csv,.json,.xml,.nfo,.epub,.docx,.doc,.pdf,.rtf,.odt,.ott,.fb2,.html,.htm,.xhtml,.mht,.mhtml,.mobi,.prc,.pdb,.azw,.zip,.azw3,.openlib">
+<input id="dir-input" type="file" multiple hidden>
+<input id="lib-input" type="file" accept=".openlib,.zip" hidden>
+<script src="/compat.js"></script>
+<script src="/shell.js"></script>
+<script src="/bundle.js"></script>
+</body>
+</html>

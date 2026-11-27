@@ -1,0 +1,24 @@
+{
+  "name": "open-reader",
+  "version": "1.2.0",
+  "private": true,
+  "type": "module",
+  "description": "免费、离线、开放格式的电子书阅读器；Windows 绿色 EXE + 同构 core（后续接 Android）",
+  "scripts": {
+    "start": "node --experimental-sqlite --no-warnings server.mjs",
+    "test": "node --experimental-sqlite --no-warnings test/run-tests.mjs",
+    "smoke": "node --experimental-sqlite --no-warnings test/smoke-http.mjs",
+    "fixtures": "python -X utf8 test/make-fixture.py && python -X utf8 test/make-format-fixtures.py && python -X utf8 test/make-more-fixtures.py",
+    "formats": "node --no-warnings test/test-parsers.mjs && node --experimental-sqlite --no-warnings test/test-formats.mjs",
+    "check": "node --experimental-sqlite --no-warnings test/run-tests.mjs && node --experimental-sqlite --no-warnings test/smoke-http.mjs && node --no-warnings test/test-parsers.mjs && node --experimental-sqlite --no-warnings test/test-formats.mjs",
+    "verify:exe": "node --no-warnings test/verify-packaged.mjs",
+    "integrity": "node --no-warnings build/make-integrity.mjs",
+    "launch:exe": "node --no-warnings test/launch-exe.mjs",
+    "fetch:runtime": "node --no-warnings build/fetch-electron.mjs",
+    "build:exe": "node --no-warnings build/make-exe.mjs && python -X utf8 build/finalize.py && node --no-warnings build/make-integrity.mjs"
+  },
+  "devDependencies": {
+    "electron": "^35.7.5",
+    "rcedit": "^5.0.1"
+  }
+}

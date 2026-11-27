@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 500" width="1200" height="500" role="img" aria-label="开放书库架构图：两端共用解析内核，数据落在普通书库文件夹，在线服务可选">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="1200" height="500" rx="16" fill="#ffffff"/>
+  <rect x="0.5" y="0.5" width="1199" height="499" rx="15.5" fill="none" stroke="#e2e8f0"/>
+  <g font-family="system-ui, -apple-system, 'Segoe UI', 'Microsoft YaHei', sans-serif">
+
+    <text x="40" y="42" font-size="20" font-weight="700" fill="#111827">开放书库 · 架构一览</text>
+    <text x="40" y="66" font-size="14" fill="#64748b">两端共用同一套解析内核，所有数据只落在你自己的书库文件夹里。</text>
+
+    <!-- clients -->
+    <rect x="60" y="96" width="330" height="92" rx="12" fill="#eef2ff" stroke="#c7d2fe"/>
+    <text x="82" y="126" font-size="17" font-weight="700" fill="#3730a3">Windows 客户端</text>
+    <text x="82" y="151" font-size="14" fill="#475569">Electron 壳 · 单 exe 自释放</text>
+    <text x="82" y="172" font-size="14" fill="#475569">首次启动可选书库位置</text>
+
+    <rect x="430" y="96" width="330" height="92" rx="12" fill="#ecfdf5" stroke="#a7f3d0"/>
+    <text x="452" y="126" font-size="17" font-weight="700" fill="#065f46">Android 客户端</text>
+    <text x="452" y="151" font-size="14" fill="#475569">WebView · SAF 授权书库目录</text>
+    <text x="452" y="172" font-size="14" fill="#475569">翻书页效果 · 双击全屏</text>
+
+    <!-- optional cloud -->
+    <rect x="820" y="96" width="320" height="92" rx="12" fill="#fffbeb" stroke="#fde68a" stroke-dasharray="6 4"/>
+    <text x="842" y="126" font-size="17" font-weight="700" fill="#92400e">在线服务（可选）</text>
+    <text x="842" y="151" font-size="14" fill="#475569">云书库 · 求书 · 意见反馈</text>
+    <text x="842" y="172" font-size="14" fill="#475569">启动更新检查 · 失败即静默跳过</text>
+
+    <!-- arrows down -->
+    <line x1="225" y1="188" x2="225" y2="222" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+    <line x1="595" y1="188" x2="595" y2="222" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+    <line x1="980" y1="188" x2="980" y2="222" stroke="#94a3b8" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#arrow)"/>
+    <text x="996" y="212" font-size="13" fill="#94a3b8">仅客户端联网</text>
+
+    <!-- core -->
+    <rect x="150" y="230" width="560" height="106" rx="12" fill="#f8fafc" stroke="#cbd5e1"/>
+    <text x="174" y="260" font-size="17" font-weight="700" fill="#111827">共享解析内核 core（纯 Web 标准 API，零第三方解析库）</text>
+    <g font-size="14" font-weight="600" fill="#334155">
+      <rect x="174" y="278" width="112" height="34" rx="8" fill="#e2e8f0"/><text x="192" y="300">格式解析</text>
+      <rect x="296" y="278" width="112" height="34" rx="8" fill="#e2e8f0"/><text x="314" y="300">全文索引</text>
+      <rect x="418" y="278" width="112" height="34" rx="8" fill="#e2e8f0"/><text x="436" y="300">阅读状态</text>
+      <rect x="540" y="278" width="146" height="34" rx="8" fill="#e2e8f0"/><text x="558" y="300">备份 / 整库包</text>
+    </g>
+
+    <!-- arrow to storage -->
+    <line x1="430" y1="336" x2="430" y2="374" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+    <text x="446" y="360" font-size="13" fill="#64748b">读写</text>
+
+    <!-- library folder -->
+    <rect x="60" y="382" width="740" height="92" rx="12" fill="#f0fdf4" stroke="#bbf7d0"/>
+    <text x="82" y="412" font-size="17" font-weight="700" fill="#166534">书库 = 一个普通文件夹（可直接复制 / 用 U 盘带走）</text>
+    <text x="82" y="437" font-family="ui-monospace, 'SFMono-Regular', Consolas, monospace" font-size="13" fill="#334155">library.json · books/&lt;id&gt;/source.&lt;ext&gt; · derived/text.txt · 索引文件</text>
+    <text x="82" y="458" font-size="13" fill="#475569">原件永不改动；解析只生成派生文本，随时可导出原文件。</text>
+
+    <!-- note -->
+    <rect x="820" y="382" width="320" height="92" rx="12" fill="#fef2f2" stroke="#fecaca"/>
+    <text x="842" y="412" font-size="16" font-weight="700" fill="#991b1b">不做什么</text>
+    <text x="842" y="436" font-size="13" fill="#475569">不加密容器 · 不上传书籍 · 不 OCR</text>
+    <text x="842" y="457" font-size="13" fill="#475569">不破解加密文档 · 不托管任何书</text>
+
+  </g>
+</svg>
