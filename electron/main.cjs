@@ -335,13 +335,16 @@ const PC_ALLOWED = /^(src|electron|qiushu|assets)\/[^\\:*?"<>|]+$|^server\.mjs$|
 const PC_TIMEOUT = 8000;
 
 function pcLocalCode() {
+  // 整包覆盖不会重置 pc-version.json，旧 code 会让新包反复弹同一版本。
+  // 热补丁记录和包内基线取较大者，任一边到版即视为已更新。
+  let patched = 0, baseline = 0;
   try {
-    const n = Number(JSON.parse(fs.readFileSync(PC_VERSION_FILE, 'utf8')).code);
-    if (n) return n;
-  } catch { /* 没更新过，读出包时的基线 */ }
+    patched = Number(JSON.parse(fs.readFileSync(PC_VERSION_FILE, 'utf8')).code) || 0;
+  } catch { /* 没打过热补丁 */ }
   try {
-    return Number(JSON.parse(fs.readFileSync(path.join(APP_DIR, 'pc-baseline.json'), 'utf8')).code) || 0;
-  } catch { return 0; }
+    baseline = Number(JSON.parse(fs.readFileSync(path.join(APP_DIR, 'pc-baseline.json'), 'utf8')).code) || 0;
+  } catch { /* 老包无基线文件 */ }
+  return Math.max(patched, baseline);
 }
 function pcWriteCode(code) {
   fs.mkdirSync(PC_STATE_DIR, { recursive: true });
